@@ -1,0 +1,39 @@
+#!/usr/bin/env ruby
+# coding: utf-8
+
+require 'org_clipper'
+require 'optparse'
+
+filename = ''
+dir = __dir__
+output = true
+op = OptionParser.new do |opt|
+  opt.banner = "Usage: clip [options]"
+  opt.separator "options are:"
+  opt.on('-h', '--help', "Show this message") do
+    puts opt
+    exit
+  end
+  opt.on('-f', '--filename=', "Output filename") do |value|
+    filename = value
+  end
+  opt.on('-d', '--dir=', "Output directory") do |value|
+    dir = value
+  end
+  opt.on('--[no-]output', "Print stdout") do |value|
+    output = value
+  end
+  opt.parse!(ARGV)
+end
+
+if ARGV.size > 0
+  doc = OrgClipper.get(ARGV[0])
+  unless output
+    puts doc
+    return 0
+  end
+  filename = doc.scan(/#\+TITLE:\s(.+)/)[0][0].gsub(" ", "") if filename.empty?
+  OrgClipper.output(doc, dir, filename)
+else
+  puts op
+end
